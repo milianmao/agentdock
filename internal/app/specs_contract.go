@@ -7,6 +7,7 @@ import (
 	toolacp "github.com/uvwt/agentdock/internal/tool/acp"
 	toolbrowser "github.com/uvwt/agentdock/internal/tool/browser"
 	toolcommand "github.com/uvwt/agentdock/internal/tool/command"
+	toolcomputer "github.com/uvwt/agentdock/internal/tool/computer"
 	toolfile "github.com/uvwt/agentdock/internal/tool/file"
 	toolmcp "github.com/uvwt/agentdock/internal/tool/mcp"
 	toolmedia "github.com/uvwt/agentdock/internal/tool/media"
@@ -92,4 +93,8 @@ func mediaToolContract(name string, _ config.Config) (ToolContract, bool) {
 
 func browserToolContract(name string, _ config.Config) (ToolContract, bool) {
 	return staticToolContract(name, toolbrowser.InputSchema, toolbrowser.OutputSchema)
+}
+
+func computerToolContract(name string, _ config.Config) (ToolContract, bool) {
+	return staticToolContract(name, toolcomputer.InputSchema, toolcomputer.OutputSchema)
 }

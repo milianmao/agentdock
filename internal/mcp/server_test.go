@@ -206,6 +206,89 @@ func TestToolEnvelopePassesThroughDynamicMCPContent(t *testing.T) {
 	}
 }
 
+func TestToolEnvelopePassesComputerCallContentThrough(t *testing.T) {
+	response := toolEnvelope("computer_call", map[string]any{
+		"host_ok":  true,
+		"server":   "computer-use",
+		"tool":     "get_app_state",
+		"is_error": false,
+		"content": []any{
+			map[string]any{"type": "text", "text": "App=com.apple.finder (pid 1106)"},
+			map[string]any{"type": "image", "data": "abc123", "mimeType": "image/png"},
+		},
+		"text": "App=com.apple.finder (pid 1106)",
+	}, nil)
+	if response["isError"] != false {
+		t.Fatalf("isError = %#v", response["isError"])
+	}
+	content, ok := response["content"].([]any)
+	if !ok || len(content) != 2 {
+		t.Fatalf("content = %#v", response["content"])
+	}
+	image, _ := content[1].(map[string]any)
+	if image["type"] != "image" || image["data"] != "abc123" || image["mimeType"] != "image/png" {
+		t.Fatalf("image content = %#v", image)
+	}
+	structured, _ := response["structuredContent"].(map[string]any)
+	if structured["tool"] != "get_app_state" {
+		t.Fatalf("structuredContent = %#v", structured)
+	}
+}
+
+func TestToolEnvelopeMarksComputerCallErrorWithoutHostOK(t *testing.T) {
+	response := toolEnvelope("computer_call", map[string]any{
+		"host_ok":  false,
+		"server":   "computer-use",
+		"tool":     "list_apps",
+		"is_error": true,
+		"content":  []any{},
+		"error":    map[string]any{"code": "COMPUTER_CALL_FAILED"},
+	}, nil)
+	if response["isError"] != true {
+		t.Fatalf("isError = %#v", response["isError"])
+	}
+	content, ok := response["content"].([]any)
+	if !ok || len(content) != 1 {
+		t.Fatalf("empty content should fall back to one text block: %#v", response["content"])
+	}
+	block, _ := content[0].(map[string]any)
+	if block["type"] != "text" || block["text"] == "" {
+		t.Fatalf("fallback block = %#v", block)
+	}
+}
+
+// TestToolEnvelopeMarksComputerStatusFailureWithoutHostOK proves a discovery
+// probe that could not reach Codex is surfaced as a failed tool call. The
+// payload has no content blocks at all, so the envelope must synthesise one and
+// still flip isError; otherwise MCP clients would see success with an error body.
+func TestToolEnvelopeMarksComputerStatusFailureWithoutHostOK(t *testing.T) {
+	response := toolEnvelope("computer_status", map[string]any{
+		"host_ok": false,
+		"servers": []any{},
+		"computer_use": map[string]any{
+			"available": false,
+			"server":    "computer-use",
+			"reason":    "the Codex host is unreachable",
+		},
+		"error": map[string]any{"code": "COMPUTER_HOST_UNAVAILABLE"},
+	}, nil)
+	if response["isError"] != true {
+		t.Fatalf("isError = %#v", response["isError"])
+	}
+	content, ok := response["content"].([]any)
+	if !ok || len(content) != 1 {
+		t.Fatalf("content = %#v", response["content"])
+	}
+	block, _ := content[0].(map[string]any)
+	if block["type"] != "text" || block["text"] == "" {
+		t.Fatalf("fallback block = %#v", block)
+	}
+	structured, _ := response["structuredContent"].(map[string]any)
+	if structured["host_ok"] != false {
+		t.Fatalf("structuredContent = %#v", structured)
+	}
+}
+
 func TestOfficialSDKServerListsAndCallsAgentDockTools(t *testing.T) {
 	root := t.TempDir()
 	cfg := config.Config{AgentDockDefaultDir: root, AgentDockHome: filepath.Join(root, ".agentdock")}

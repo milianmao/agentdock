@@ -46,7 +46,11 @@ var outputContractCoverageInventory = map[string]outputContractCoverageEntry{
 	"browser_session":  {Variants: []string{"start"}, IntegrationOnly: true},
 	"browser_act":      {Variants: []string{"success"}, IntegrationOnly: true},
 	"browser_snapshot": {Variants: []string{"success"}, IntegrationOnly: true},
-	"file_publish":     {Variants: []string{"success"}},
+	// Computer Use 代理用注入的假 Codex 宿主校验成功路径；真机链路由
+	// internal/codexhost 的门控 smoke 测试覆盖。
+	"computer_status": {Variants: []string{"success"}},
+	"computer_call":   {Variants: []string{"success"}},
+	"file_publish":    {Variants: []string{"success"}},
 }
 
 func TestOutputContractCoverageMatchesPublicTools(t *testing.T) {

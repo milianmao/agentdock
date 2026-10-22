@@ -301,7 +301,33 @@ func toolEnvelope(name string, structured any, err error) map[string]any {
 	if name == "mcp_tool_call" {
 		return dynamicMCPToolEnvelope(structured)
 	}
+	// Both computer tools gate isError on host_ok: a status probe that could not
+	// reach Codex is a failure for the caller even though it carries no content
+	// blocks, and reporting it as a success would hide the broken host.
+	if name == "computer_call" || name == "computer_status" {
+		return computerToolEnvelope(structured)
+	}
 	return map[string]any{"isError": false, "structuredContent": structured, "content": []map[string]any{{"type": "text", "text": pretty(structured)}}}
+}
+
+// computerToolEnvelope 透传 Codex computer-use 插件返回的 MCP content blocks。
+// 插件把桌面状态表达为 text 形式的 AX 树加 inline image 截图，任何重编码都会破坏
+// 与官方插件、官方 Codex UI 的行为一致性。
+func computerToolEnvelope(structured any) map[string]any {
+	payload := asMap(structured)
+	content, ok := payload["content"].([]any)
+	if !ok || len(content) == 0 {
+		content = []any{map[string]any{"type": "text", "text": pretty(payload)}}
+	}
+	isError, _ := payload["is_error"].(bool)
+	if hostOK, _ := payload["host_ok"].(bool); !hostOK {
+		isError = true
+	}
+	return map[string]any{
+		"isError":           isError,
+		"structuredContent": payload,
+		"content":           content,
+	}
 }
 
 func dynamicMCPToolEnvelope(structured any) map[string]any {

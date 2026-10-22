@@ -21,6 +21,7 @@ import (
 	toolacp "github.com/uvwt/agentdock/internal/tool/acp"
 	toolbrowser "github.com/uvwt/agentdock/internal/tool/browser"
 	toolcommand "github.com/uvwt/agentdock/internal/tool/command"
+	toolcomputer "github.com/uvwt/agentdock/internal/tool/computer"
 	toolcontract "github.com/uvwt/agentdock/internal/tool/contract"
 	toolcore "github.com/uvwt/agentdock/internal/tool/core"
 	toolfile "github.com/uvwt/agentdock/internal/tool/file"
@@ -47,6 +48,7 @@ type Runtime struct {
 	plugins        *toolplugin.Service
 	media          *toolmedia.Service
 	browser        *toolbrowser.Service
+	computer       *toolcomputer.Service
 	recall         *toolrecall.Service
 	evolution      *evolution.Service
 	taskTools      *tooltask.Service
@@ -156,6 +158,14 @@ func NewRuntime(cfg config.Config) (*Runtime, error) {
 		toolbrowser.Config{AgentDockHome: cfg.AgentDockHome, ExecutablePath: cfg.BrowserExecutablePath, CDPURL: cfg.BrowserCDPURL, ReuseExistingCDP: cfg.BrowserReuseExistingCDP},
 		runtime.media.PublishBrowserScreenshot,
 	)
+	// Codex 宿主按需惰性启动：本机没装 Codex CLI 时只是 computer_* 工具报错，
+	// 不能让整个 AgentDock 启动失败。
+	runtime.computer = toolcomputer.New(toolcomputer.Config{
+		ExecutablePath: cfg.CodexExecutablePath,
+		CodexHome:      cfg.CodexHome,
+		ServerName:     cfg.ComputerUseServer,
+		CWD:            cfg.AgentDockDefaultDir,
+	})
 	runtime.recall = toolrecall.New(func() config.Config { return runtime.cfg })
 	runtime.evolution = evolution.New(func() config.Config { return runtime.cfg }, tasks)
 	runtime.taskTools = tooltask.New(func() config.Config { return runtime.cfg }, tasks, runtime.evolution)
@@ -229,6 +239,11 @@ func (r *Runtime) Close() error {
 		if r.browser != nil {
 			if err := r.browser.Close(); err != nil {
 				closeErrors = append(closeErrors, fmt.Errorf("close browser runtime: %w", err))
+			}
+		}
+		if r.computer != nil {
+			if err := r.computer.Close(); err != nil {
+				closeErrors = append(closeErrors, fmt.Errorf("close computer use runtime: %w", err))
 			}
 		}
 		if r.command != nil {
