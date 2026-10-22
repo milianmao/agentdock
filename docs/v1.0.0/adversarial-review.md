@@ -8,7 +8,7 @@
 |---|---|
 | 设计文档 | `docs/v1.0.0/设计文档.md`（428 行） |
 | 契约规范 | `docs/v1.0.0/契约规范.md`（705 行） |
-| 规划任务 | `docs/v1.0.0/规划任务文档.md`（237 行） |
+| 规划任务 | `docs/v1.0.0/规划任务文档.md`（239 行） |
 | 宿主客户端 | `internal/codexhost/`：`transport.go` 283 行、`client.go` 316 行、`methods.go` 350 行、`server_requests.go` 75 行、`errors.go` 75 行、`discovery.go` 86 行、`child_windows.go` 22 行、`child_unix.go` 15 行 |
 | 工具层 | `internal/tool/computer/`：`service.go` 399 行、`contract.go` 77 行、`errors.go` 55 行、`service_test.go` 470 行 |
 | 应用接线 | `internal/app/specs_computer.go:9-18`、`specs_registry.go:16`、`specs.go:155-157`、`runtime.go:163-168`、`runtime.go:244-252`、`runtime.go:324-340`、`computer_tools_test.go:12` |
