@@ -1,0 +1,74 @@
+{
+  "schema_version": "contract-oracle-v1",
+  "source_sdd": "docs/v1.0.0/契约规范.md",
+  "generated_at": "2026-10-22T08:01:59.963761+00:00",
+  "engine_version": "0.7.0",
+  "coverage": {
+    "covered": 6,
+    "total": 6,
+    "ratio": 1.0
+  },
+  "contracts": [
+    {
+      "endpoint": "POST /computer/status",
+      "method": "POST",
+      "path": "/computer/status",
+      "sdd_section": "§3.3.1",
+      "test_file": "test_computer_contract.py",
+      "test_function": "test_post_computer_status_schema",
+      "status": "covered",
+      "gap_reason": null
+    },
+    {
+      "endpoint": "POST /computer/call",
+      "method": "POST",
+      "path": "/computer/call",
+      "sdd_section": "§3.3.2",
+      "test_file": "test_computer_contract.py",
+      "test_function": "test_post_computer_call_schema",
+      "status": "covered",
+      "gap_reason": null
+    },
+    {
+      "endpoint": "POST /host/initialize",
+      "method": "POST",
+      "path": "/host/initialize",
+      "sdd_section": "§3.3.3",
+      "test_file": "test_host_contract.py",
+      "test_function": "test_post_host_initialize_schema",
+      "status": "covered",
+      "gap_reason": null
+    },
+    {
+      "endpoint": "POST /host/thread/start",
+      "method": "POST",
+      "path": "/host/thread/start",
+      "sdd_section": "§3.3.4",
+      "test_file": "test_host_contract.py",
+      "test_function": "test_post_host_thread_start_schema",
+      "status": "covered",
+      "gap_reason": null
+    },
+    {
+      "endpoint": "POST /host/mcp-servers/list",
+      "method": "POST",
+      "path": "/host/mcp-servers/list",
+      "sdd_section": "§3.3.5",
+      "test_file": "test_host_contract.py",
+      "test_function": "test_post_host_mcp_servers_list_schema",
+      "status": "covered",
+      "gap_reason": null
+    },
+    {
+      "endpoint": "POST /host/mcp-tool/call",
+      "method": "POST",
+      "path": "/host/mcp-tool/call",
+      "sdd_section": "§3.3.6",
+      "test_file": "test_host_contract.py",
+      "test_function": "test_post_host_mcp_tool_call_schema",
+      "status": "covered",
+      "gap_reason": null
+    }
+  ],
+  "gaps": []
+}
