@@ -87,13 +87,23 @@ type Config struct {
 	BrowserExecutablePath        string
 	BrowserCDPURL                string
 	BrowserReuseExistingCDP      bool
-	ACPEnabled                   bool
-	ACPProfiles                  []ACPProfile
-	ACPDefaultProfile            string
-	ACPMaxPrompts                int
-	ACPInteractionMS             int
-	Stdio                        bool
-	TrustedProxyCIDRs            []string
+	// CodexHostEnabled exposes the Computer Use proxy tools. AgentDock borrows a
+	// local Codex CLI as the host: the computer-use plugin only ships inside the
+	// signed desktop apps, so AgentDock cannot launch the executor itself.
+	CodexHostEnabled bool
+	// CodexExecutablePath overrides Codex discovery for the app-server child.
+	CodexExecutablePath string
+	// CodexHome overrides CODEX_HOME for the app-server child.
+	CodexHome string
+	// ComputerUseServer is the MCP server name the computer-use plugin registers.
+	ComputerUseServer string
+	ACPEnabled        bool
+	ACPProfiles       []ACPProfile
+	ACPDefaultProfile string
+	ACPMaxPrompts     int
+	ACPInteractionMS  int
+	Stdio             bool
+	TrustedProxyCIDRs []string
 }
 
 // ACPProfile 表示一个可独立运行、独立持久化会话的 ACP 实例。
@@ -145,6 +155,14 @@ func FromEnv() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	codexHostEnabled, err := getenvBool("AGENTDOCK_CODEX_HOST_ENABLED", false)
+	if err != nil {
+		return Config{}, err
+	}
+	computerUseServer := strings.TrimSpace(os.Getenv("AGENTDOCK_COMPUTER_USE_SERVER"))
+	if computerUseServer == "" {
+		computerUseServer = "computer-use"
+	}
 	var acpProfiles []ACPProfile
 	acpDefaultProfile := ""
 	acpMaxPrompts := 2
@@ -192,6 +210,10 @@ func FromEnv() (Config, error) {
 		BrowserExecutablePath:        os.Getenv("AGENTDOCK_BROWSER_EXECUTABLE_PATH"),
 		BrowserCDPURL:                strings.TrimSpace(os.Getenv("AGENTDOCK_BROWSER_CDP_URL")),
 		BrowserReuseExistingCDP:      browserReuseExistingCDP,
+		CodexHostEnabled:             codexHostEnabled,
+		CodexExecutablePath:          strings.TrimSpace(os.Getenv("AGENTDOCK_CODEX_EXECUTABLE_PATH")),
+		CodexHome:                    strings.TrimSpace(os.Getenv("AGENTDOCK_CODEX_HOME")),
+		ComputerUseServer:            computerUseServer,
 		ACPEnabled:                   acpEnabled,
 		ACPProfiles:                  acpProfiles,
 		ACPDefaultProfile:            acpDefaultProfile,
@@ -265,6 +287,20 @@ func (c *Config) Normalize() error {
 		case "http", "https", "ws", "wss":
 		default:
 			return fmt.Errorf("BrowserCDPURL must use http, https, ws, or wss: %s", c.BrowserCDPURL)
+		}
+	}
+	c.CodexExecutablePath = strings.TrimSpace(c.CodexExecutablePath)
+	if c.CodexExecutablePath != "" {
+		c.CodexExecutablePath = filepath.Clean(c.CodexExecutablePath)
+		if !filepath.IsAbs(c.CodexExecutablePath) {
+			return fmt.Errorf("CodexExecutablePath must resolve to an absolute path: %s", c.CodexExecutablePath)
+		}
+	}
+	c.CodexHome = strings.TrimSpace(c.CodexHome)
+	if c.CodexHome != "" {
+		c.CodexHome = filepath.Clean(c.CodexHome)
+		if !filepath.IsAbs(c.CodexHome) {
+			return fmt.Errorf("CodexHome must resolve to an absolute path: %s", c.CodexHome)
 		}
 	}
 	if err := validateEnvironmentMapping(c.CommandEnvFromEnv); err != nil {

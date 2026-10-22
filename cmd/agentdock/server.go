@@ -62,6 +62,10 @@ func runServer(ctx context.Context, args []string, stderr io.Writer) error {
 	flags.StringVar(&cfg.BrowserExecutablePath, "browser-executable-path", cfg.BrowserExecutablePath, "optional absolute Chrome, Chromium, or Edge executable path")
 	flags.StringVar(&cfg.BrowserCDPURL, "browser-cdp-url", cfg.BrowserCDPURL, "optional existing Chromium CDP endpoint to attach")
 	flags.BoolVar(&cfg.BrowserReuseExistingCDP, "browser-reuse-existing-cdp", cfg.BrowserReuseExistingCDP, "discover and reuse a unique local existing CDP browser before launching one")
+	flags.BoolVar(&cfg.CodexHostEnabled, "codex-host-enabled", cfg.CodexHostEnabled, "expose Computer Use proxy tools backed by a local Codex app-server")
+	flags.StringVar(&cfg.CodexExecutablePath, "codex-executable-path", cfg.CodexExecutablePath, "optional absolute path to the Codex CLI used as the Computer Use host")
+	flags.StringVar(&cfg.CodexHome, "codex-home", cfg.CodexHome, "optional absolute CODEX_HOME for the Codex app-server child")
+	flags.StringVar(&cfg.ComputerUseServer, "computer-use-server", cfg.ComputerUseServer, "MCP server name registered by the Codex computer-use plugin")
 	flags.BoolVar(&cfg.Stdio, "stdio", cfg.Stdio, "serve JSON-RPC over stdio")
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {

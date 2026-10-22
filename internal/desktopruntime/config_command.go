@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -24,6 +25,10 @@ type ConfigUpdateRequest struct {
 	BrowserEnabled          bool
 	BrowserCDPURL           string
 	BrowserReuseExistingCDP bool
+	CodexHostEnabled        bool
+	CodexExecutablePath     string
+	CodexHome               string
+	ComputerUseServer       string
 	ACPEnabled              bool
 	ACPProfiles             []agentconfig.ACPProfile
 	ACPDefaultProfile       string
@@ -45,6 +50,10 @@ func RunConfigCommand(ctx context.Context, args []string, stdout, stderr io.Writ
 		browserEnabled := flags.Bool("browser-enabled", false, "启用浏览器")
 		browserCDPURL := flags.String("browser-cdp-url", "", "已有 Chromium CDP 地址")
 		browserReuseExistingCDP := flags.Bool("browser-reuse-existing-cdp", false, "自动发现并复用唯一已有 CDP")
+		codexHostEnabled := flags.Bool("codex-host-enabled", false, "启用 Codex 宿主 Computer Use 代理")
+		codexExecutablePath := flags.String("codex-executable-path", "", "Codex CLI 绝对路径；留空从 PATH 发现")
+		codexHome := flags.String("codex-home", "", "CODEX_HOME 绝对路径；留空继承环境变量或 ~/.codex")
+		computerUseServer := flags.String("computer-use-server", "", "computer-use 插件注册的 MCP server 名；留空使用 computer-use")
 		acpEnabled := flags.Bool("acp-enabled", false, "启用 Coding Agent")
 		acpProfilesJSON := flags.String("acp-profiles-json", "", "多个 ACP Profile 的 JSON 数组")
 		acpDefaultProfile := flags.String("acp-default-profile", "", "默认 ACP Profile ID")
@@ -89,6 +98,10 @@ func RunConfigCommand(ctx context.Context, args []string, stdout, stderr io.Writ
 			BrowserEnabled:          *browserEnabled,
 			BrowserCDPURL:           strings.TrimSpace(*browserCDPURL),
 			BrowserReuseExistingCDP: *browserReuseExistingCDP,
+			CodexHostEnabled:        *codexHostEnabled,
+			CodexExecutablePath:     strings.TrimSpace(*codexExecutablePath),
+			CodexHome:               strings.TrimSpace(*codexHome),
+			ComputerUseServer:       strings.TrimSpace(*computerUseServer),
 			ACPEnabled:              *acpEnabled,
 			ACPProfiles:             acpProfiles,
 			ACPDefaultProfile:       strings.TrimSpace(*acpDefaultProfile),
@@ -139,6 +152,17 @@ func validateConfigUpdate(request ConfigUpdateRequest) error {
 		default:
 			return errors.New("浏览器 CDP 地址必须使用 http、https、ws 或 wss")
 		}
+	}
+	if request.CodexExecutablePath != "" {
+		if !filepath.IsAbs(request.CodexExecutablePath) {
+			return errors.New("Codex CLI 路径必须是绝对路径")
+		}
+		if info, err := os.Stat(request.CodexExecutablePath); err != nil || !info.Mode().IsRegular() {
+			return fmt.Errorf("Codex CLI 路径不是可执行文件: %s", request.CodexExecutablePath)
+		}
+	}
+	if request.CodexHome != "" && !filepath.IsAbs(request.CodexHome) {
+		return errors.New("CODEX_HOME 必须是绝对路径")
 	}
 	if len(request.ACPProfiles) == 0 {
 		if request.ACPEnabled {

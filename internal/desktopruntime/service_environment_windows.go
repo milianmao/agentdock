@@ -30,6 +30,10 @@ var managedCoreEnvironment = []string{
 	"AGENTDOCK_BROWSER_ENABLED",
 	"AGENTDOCK_BROWSER_CDP_URL",
 	"AGENTDOCK_BROWSER_REUSE_EXISTING_CDP",
+	"AGENTDOCK_CODEX_HOST_ENABLED",
+	"AGENTDOCK_CODEX_EXECUTABLE_PATH",
+	"AGENTDOCK_CODEX_HOME",
+	"AGENTDOCK_COMPUTER_USE_SERVER",
 	"AGENTDOCK_ACP_ENABLED",
 	"AGENTDOCK_ACP_PROFILES_JSON",
 	"AGENTDOCK_ACP_DEFAULT_PROFILE",
@@ -55,6 +59,10 @@ type controlPanelSettings struct {
 	BrowserEnabled          bool                     `json:"browser_enabled"`
 	BrowserCDPURL           string                   `json:"browser_cdp_url"`
 	BrowserReuseExistingCDP bool                     `json:"browser_reuse_existing_cdp"`
+	CodexHostEnabled        bool                     `json:"codex_host_enabled,omitempty"`
+	CodexExecutablePath     string                   `json:"codex_executable_path,omitempty"`
+	CodexHome               string                   `json:"codex_home,omitempty"`
+	ComputerUseServer       string                   `json:"computer_use_server,omitempty"`
 	ACPEnabled              bool                     `json:"acp_enabled"`
 	ACPProfiles             []agentconfig.ACPProfile `json:"acp_profiles,omitempty"`
 	ACPDefaultProfile       string                   `json:"acp_default_profile,omitempty"`
@@ -95,6 +103,7 @@ func platformPrepareCoreEnvironment(runtimeRoot string) error {
 		"AGENTDOCK_MCP_APPS_MODE":              string(settings.MCPAppsMode),
 		"AGENTDOCK_BROWSER_ENABLED":            strconv.FormatBool(settings.BrowserEnabled),
 		"AGENTDOCK_BROWSER_REUSE_EXISTING_CDP": strconv.FormatBool(settings.BrowserReuseExistingCDP),
+		"AGENTDOCK_CODEX_HOST_ENABLED":         strconv.FormatBool(settings.CodexHostEnabled),
 		"AGENTDOCK_ACP_ENABLED":                strconv.FormatBool(settings.ACPEnabled),
 	}
 	if path := strings.TrimSpace(manifest.AgentDockHome); path != "" {
@@ -105,6 +114,15 @@ func platformPrepareCoreEnvironment(runtimeRoot string) error {
 	}
 	if settings.BrowserCDPURL != "" {
 		managed["AGENTDOCK_BROWSER_CDP_URL"] = settings.BrowserCDPURL
+	}
+	if settings.CodexExecutablePath != "" {
+		managed["AGENTDOCK_CODEX_EXECUTABLE_PATH"] = settings.CodexExecutablePath
+	}
+	if settings.CodexHome != "" {
+		managed["AGENTDOCK_CODEX_HOME"] = settings.CodexHome
+	}
+	if settings.ComputerUseServer != "" {
+		managed["AGENTDOCK_COMPUTER_USE_SERVER"] = settings.ComputerUseServer
 	}
 	if settings.ACPEnabled {
 		if len(settings.ACPProfiles) == 0 {
