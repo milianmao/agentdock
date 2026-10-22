@@ -85,6 +85,36 @@
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="10">
+                    <StackPanel HorizontalAlignment="Stretch">
+                    <Grid MinHeight="58"
+                          Padding="13,6"
+                          ColumnSpacing="16"
+                          HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="ComputerUseTitle" FontSize="13"/>
+                            <TextBlock x:Name="ComputerUseDetail" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <ToggleSwitch x:Name="ComputerUseEnabledToggle"
+                                      Grid.Column="1"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      MinWidth="0"
+                                      OnContent=""
+                                      OffContent=""/>
+                    </Grid>
+                    <StackPanel Padding="13,0,13,12" Spacing="8">
+                        <TextBox x:Name="CodexExecutablePathTextBox" PlaceholderText="C:\Program Files\Codex\codex.exe"/>
+                        <TextBox x:Name="CodexHomeTextBox" PlaceholderText="%USERPROFILE%\.codex"/>
+                        <TextBox x:Name="ComputerUseServerTextBox" PlaceholderText="computer-use"/>
+                    </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="10">
                     <Grid MinHeight="58" Padding="13,6" ColumnSpacing="16">
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">

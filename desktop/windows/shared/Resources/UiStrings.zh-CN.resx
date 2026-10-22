@@ -748,6 +748,9 @@
   <data name="BrowserReuseMode" xml:space="preserve"><value>优先复用本机已有浏览器</value></data>
   <data name="BrowserSpecifiedMode" xml:space="preserve"><value>使用已配置的 CDP 浏览器</value></data>
   <data name="BrowserIsolatedMode" xml:space="preserve"><value>使用隔离浏览器</value></data>
+  <data name="ComputerUse" xml:space="preserve"><value>桌面操作</value></data>
+  <data name="ComputerUseCapabilityDetail" xml:space="preserve"><value>借助本机 Codex 的 computer-use 插件操作桌面应用</value></data>
+  <data name="ComputerUseAutoDetectDetail" xml:space="preserve"><value>从 PATH 自动发现 Codex；插件随 Codex 桌面版安装</value></data>
   <data name="NoProfilesConfigured" xml:space="preserve"><value>尚未配置 Profile</value></data>
   <data name="ProfilesConfigured" xml:space="preserve"><value>已启用 {0} 个 · 默认 {1}</value></data>
   <data name="McpAppsDetail" xml:space="preserve"><value>交互式 MCP App 展示模式</value></data>

@@ -18,6 +18,8 @@ public sealed partial class CapabilitiesPage : Page
         CapabilitiesSectionTitle.Text = UiText.Get("BuiltInCapabilities");
         BrowserTitle.Text = UiText.Get("Browser");
         CodingAgentTitle.Text = UiText.Get("CodingAgent");
+        ComputerUseTitle.Text = UiText.Get("ComputerUse");
+        ComputerUseDetail.Text = UiText.Get("ComputerUseCapabilityDetail");
         McpAppsTitle.Text = UiText.Get("McpApps");
         ManagedBrowserModeItem.Content = UiText.Get("IsolatedBrowser");
         ReuseBrowserModeItem.Content = UiText.Get("ReuseLocalBrowser");
@@ -56,6 +58,13 @@ public sealed partial class CapabilitiesPage : Page
         BrowserDetail.Text = BrowserModeDescription(settings);
         SelectBrowserMode(settings);
         BrowserCdpUrlTextBox.Text = settings.BrowserCdpUrl;
+        ComputerUseEnabledToggle.IsOn = settings.CodexHostEnabled;
+        ComputerUseDetail.Text = settings.CodexHostEnabled && string.IsNullOrWhiteSpace(settings.CodexExecutablePath)
+            ? UiText.Get("ComputerUseAutoDetectDetail")
+            : UiText.Get("ComputerUseCapabilityDetail");
+        CodexExecutablePathTextBox.Text = settings.CodexExecutablePath;
+        CodexHomeTextBox.Text = settings.CodexHome;
+        ComputerUseServerTextBox.Text = settings.ComputerUseServer;
         CodingAgentEnabledToggle.IsOn = settings.AcpEnabled;
         UpdateCodingAgentDetail(settings);
         McpAppsDetail.Text = UiText.Get("McpAppsDetail");
@@ -265,6 +274,10 @@ public sealed partial class CapabilitiesPage : Page
         _settings.BrowserEnabled = BrowserEnabledToggle.IsOn;
         _settings.BrowserCdpUrl = browserMode == "specified" ? BrowserCdpUrlTextBox.Text.Trim() : "";
         _settings.BrowserReuseExistingCdp = browserMode == "reuse";
+        _settings.CodexHostEnabled = ComputerUseEnabledToggle.IsOn;
+        _settings.CodexExecutablePath = CodexExecutablePathTextBox.Text.Trim();
+        _settings.CodexHome = CodexHomeTextBox.Text.Trim();
+        _settings.ComputerUseServer = ComputerUseServerTextBox.Text.Trim();
         _settings.AcpEnabled = CodingAgentEnabledToggle.IsOn;
         _settings.McpAppsMode = (McpAppsModeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "full";
         SaveStatus.Text = UiText.Get("Saving");

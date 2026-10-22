@@ -1102,6 +1102,10 @@ private struct CapabilitiesView: View {
     @State private var browserEnabled = false
     @State private var browserMode = 0
     @State private var browserCDPURL = ""
+    @State private var codexHostEnabled = false
+    @State private var codexExecutablePath = ""
+    @State private var codexHome = ""
+    @State private var computerUseServer = ""
     @State private var acpEnabled = false
     @State private var profiles: [ACPProfileConfiguration] = []
     @State private var defaultProfile = ""
@@ -1200,6 +1204,28 @@ private struct CapabilitiesView: View {
                     }
 
                     SettingsCard {
+                        SettingsRow(L10n.text("Computer use"), detail: computerUseDetail) {
+                            Toggle("", isOn: $codexHostEnabled)
+                                .labelsHidden()
+                                .toggleStyle(.switch)
+                        }
+                        VStack(alignment: .leading, spacing: 8) {
+                            TextField(L10n.text("Codex executable path (optional)"), text: $codexExecutablePath)
+                                .textFieldStyle(.roundedBorder)
+                                .disabled(!codexHostEnabled)
+                            TextField(L10n.text("CODEX_HOME (optional)"), text: $codexHome)
+                                .textFieldStyle(.roundedBorder)
+                                .disabled(!codexHostEnabled)
+                            TextField("computer-use", text: $computerUseServer)
+                                .textFieldStyle(.roundedBorder)
+                                .disabled(!codexHostEnabled)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 13)
+                        .padding(.bottom, 12)
+                    }
+
+                    SettingsCard {
                         SettingsRow(L10n.text("MCP Apps"), detail: L10n.text("Interactive MCP app presentation")) {
                             Picker("", selection: $selectedMCPAppsMode) {
                                 Text(L10n.text("Full")).tag(MCPAppsMode.full)
@@ -1218,6 +1244,10 @@ private struct CapabilitiesView: View {
                         browserEnabled: browserEnabled,
                         browserCDPURL: browserMode == 2 ? browserCDPURL : "",
                         browserReuseExistingCDP: browserMode == 1,
+                        codexHostEnabled: codexHostEnabled,
+                        codexExecutablePath: codexExecutablePath,
+                        codexHome: codexHome,
+                        computerUseServer: computerUseServer,
                         acpEnabled: acpEnabled,
                         acpProfiles: profiles,
                         acpDefaultProfile: defaultProfile
@@ -1243,6 +1273,15 @@ private struct CapabilitiesView: View {
     }
 
     private var enabledProfiles: [ACPProfileConfiguration] { profiles.filter(\.enabled) }
+    /// 桌面操作只有一条实现路径：借用本机 Codex 的 computer-use 插件。没有开关时
+    /// 说明这项能力对用户不可见。
+    private var computerUseDetail: String {
+        guard codexHostEnabled else { return L10n.text("Not enabled yet") }
+        let path = codexExecutablePath.trimmingCharacters(in: .whitespacesAndNewlines)
+        return path.isEmpty
+            ? L10n.text("Codex discovered from PATH")
+            : path
+    }
     private var codingAgentDetail: String {
         let enabledCount = profiles.filter(\.enabled).count
         guard enabledCount > 0 else { return L10n.text("No profiles configured") }
@@ -1263,6 +1302,10 @@ private struct CapabilitiesView: View {
         browserEnabled = configuration.browserEnabled
         browserCDPURL = configuration.browserCDPURL
         browserMode = !configuration.browserCDPURL.isEmpty ? 2 : (configuration.browserReuseExistingCDP ? 1 : 0)
+        codexHostEnabled = configuration.codexHostEnabled
+        codexExecutablePath = configuration.codexExecutablePath
+        codexHome = configuration.codexHome
+        computerUseServer = configuration.computerUseServer.isEmpty ? "computer-use" : configuration.computerUseServer
         acpEnabled = configuration.acpEnabled
         profiles = configuration.acpProfiles
         for preset in [ACPAgentPreset.codex, .claude, .grok] where !profiles.contains(where: { $0.id == preset.rawValue }) {
@@ -1912,6 +1955,10 @@ private struct SettingsView: View {
                                         browserEnabled: configuration.browserEnabled,
                                         browserCDPURL: configuration.browserCDPURL,
                                         browserReuseExistingCDP: configuration.browserReuseExistingCDP,
+                                        codexHostEnabled: configuration.codexHostEnabled,
+                                        codexExecutablePath: configuration.codexExecutablePath,
+                                        codexHome: configuration.codexHome,
+                                        computerUseServer: configuration.computerUseServer,
                                         acpEnabled: configuration.acpEnabled,
                                         acpProfiles: configuration.acpProfiles,
                                         acpDefaultProfile: configuration.acpDefaultProfile
@@ -2123,6 +2170,10 @@ private struct SettingsView: View {
             browserEnabled: configuration.browserEnabled,
             browserCDPURL: configuration.browserCDPURL,
             browserReuseExistingCDP: configuration.browserReuseExistingCDP,
+            codexHostEnabled: configuration.codexHostEnabled,
+            codexExecutablePath: configuration.codexExecutablePath,
+            codexHome: configuration.codexHome,
+            computerUseServer: configuration.computerUseServer,
             acpEnabled: configuration.acpEnabled,
             acpProfiles: configuration.acpProfiles,
             acpDefaultProfile: configuration.acpDefaultProfile

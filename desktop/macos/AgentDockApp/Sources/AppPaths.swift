@@ -48,6 +48,10 @@ struct ServiceConfiguration: Equatable {
         "AGENTDOCK_BROWSER_ENABLED",
         "AGENTDOCK_BROWSER_CDP_URL",
         "AGENTDOCK_BROWSER_REUSE_EXISTING_CDP",
+        "AGENTDOCK_CODEX_HOST_ENABLED",
+        "AGENTDOCK_CODEX_EXECUTABLE_PATH",
+        "AGENTDOCK_CODEX_HOME",
+        "AGENTDOCK_COMPUTER_USE_SERVER",
         "AGENTDOCK_ACP_ENABLED",
         "AGENTDOCK_ACP_PROFILES_JSON",
         "AGENTDOCK_ACP_DEFAULT_PROFILE",
@@ -74,6 +78,10 @@ struct ServiceConfiguration: Equatable {
     let browserEnabled: Bool
     let browserCDPURL: String
     let browserReuseExistingCDP: Bool
+    let codexHostEnabled: Bool
+    let codexExecutablePath: String
+    let codexHome: String
+    let computerUseServer: String
     let acpEnabled: Bool
     let acpProfiles: [ACPProfileConfiguration]
     let acpDefaultProfile: String
@@ -148,6 +156,10 @@ struct ServiceConfiguration: Equatable {
             browserEnabled: parseBool(values["AGENTDOCK_BROWSER_ENABLED"]),
             browserCDPURL: values["AGENTDOCK_BROWSER_CDP_URL"] ?? "",
             browserReuseExistingCDP: parseBool(values["AGENTDOCK_BROWSER_REUSE_EXISTING_CDP"]),
+            codexHostEnabled: parseBool(values["AGENTDOCK_CODEX_HOST_ENABLED"]),
+            codexExecutablePath: values["AGENTDOCK_CODEX_EXECUTABLE_PATH"] ?? "",
+            codexHome: values["AGENTDOCK_CODEX_HOME"] ?? "",
+            computerUseServer: values["AGENTDOCK_COMPUTER_USE_SERVER"] ?? "",
             acpEnabled: acpEnabled,
             acpProfiles: acpProfiles,
             acpDefaultProfile: acpDefaultProfile

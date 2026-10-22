@@ -8,6 +8,10 @@ struct EditableServiceSettings {
     let browserEnabled: Bool
     let browserCDPURL: String
     let browserReuseExistingCDP: Bool
+    let codexHostEnabled: Bool
+    let codexExecutablePath: String
+    let codexHome: String
+    let computerUseServer: String
     let acpEnabled: Bool
     let acpProfiles: [ACPProfileConfiguration]
     let acpDefaultProfile: String
@@ -19,6 +23,10 @@ struct EditableServiceSettings {
         browserEnabled: Bool,
         browserCDPURL: String,
         browserReuseExistingCDP: Bool,
+        codexHostEnabled: Bool = false,
+        codexExecutablePath: String = "",
+        codexHome: String = "",
+        computerUseServer: String = "",
         acpEnabled: Bool,
         acpProfiles: [ACPProfileConfiguration] = [],
         acpDefaultProfile: String = ""
@@ -29,6 +37,10 @@ struct EditableServiceSettings {
         self.browserEnabled = browserEnabled
         self.browserCDPURL = browserCDPURL
         self.browserReuseExistingCDP = browserReuseExistingCDP
+        self.codexHostEnabled = codexHostEnabled
+        self.codexExecutablePath = codexExecutablePath
+        self.codexHome = codexHome
+        self.computerUseServer = computerUseServer
         self.acpEnabled = acpEnabled
         self.acpProfiles = acpProfiles
         self.acpDefaultProfile = acpDefaultProfile
@@ -46,10 +58,32 @@ struct EditableServiceSettings {
             throw ValidationError(L10n.text("No supported Chrome, Chromium, or Microsoft Edge was detected and no external CDP is configured."))
         }
 
-        return try validatedWithProfiles(normalizedLogLevel: normalizedLogLevel, browserCDPURL: browserCDPURL)
+        let codexExecutablePath = try Self.normalizeAbsolutePath(codexExecutablePath, field: L10n.text("Codex executable path"))
+        if codexHostEnabled, !codexExecutablePath.isEmpty {
+            var isDirectory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: codexExecutablePath, isDirectory: &isDirectory), !isDirectory.boolValue else {
+                throw ValidationError(L10n.text("Codex executable path must point to an existing file."))
+            }
+        }
+        let codexHome = try Self.normalizeAbsolutePath(codexHome, field: L10n.text("CODEX_HOME"))
+        let computerUseServer = computerUseServer.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return try validatedWithProfiles(
+            normalizedLogLevel: normalizedLogLevel,
+            browserCDPURL: browserCDPURL,
+            codexExecutablePath: codexExecutablePath,
+            codexHome: codexHome,
+            computerUseServer: computerUseServer
+        )
     }
 
-    private func validatedWithProfiles(normalizedLogLevel: String, browserCDPURL: String) throws -> EditableServiceSettings {
+    private func validatedWithProfiles(
+        normalizedLogLevel: String,
+        browserCDPURL: String,
+        codexExecutablePath: String,
+        codexHome: String,
+        computerUseServer: String
+    ) throws -> EditableServiceSettings {
         var seen = Set<String>()
         var profiles: [ACPProfileConfiguration] = []
         profiles.reserveCapacity(acpProfiles.count)
@@ -113,6 +147,10 @@ struct EditableServiceSettings {
             browserEnabled: browserEnabled,
             browserCDPURL: browserCDPURL,
             browserReuseExistingCDP: browserReuseExistingCDP,
+            codexHostEnabled: codexHostEnabled,
+            codexExecutablePath: codexExecutablePath,
+            codexHome: codexHome,
+            computerUseServer: computerUseServer,
             acpEnabled: acpEnabled,
             acpProfiles: profiles,
             acpDefaultProfile: defaultProfileID
@@ -130,6 +168,17 @@ struct EditableServiceSettings {
                 || value == 95
                 || value == 45
         }
+    }
+
+    /// 空值表示“使用默认发现”，此时不写入环境变量；非空则必须绝对，避免 GUI
+    /// 保存相对路径后依赖服务进程的工作目录。
+    private static func normalizeAbsolutePath(_ raw: String, field: String) throws -> String {
+        let candidate = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !candidate.isEmpty else { return "" }
+        guard candidate.hasPrefix("/") else {
+            throw ValidationError(L10n.format("%@ must be an absolute path.", field))
+        }
+        return candidate
     }
 
     private static func normalizeBrowserCDPURL(_ raw: String) throws -> String {
@@ -179,6 +228,10 @@ final class ServiceConfigurationController {
             "AGENTDOCK_BROWSER_ENABLED": settings.browserEnabled ? "true" : "false",
             "AGENTDOCK_BROWSER_CDP_URL": settings.browserCDPURL,
             "AGENTDOCK_BROWSER_REUSE_EXISTING_CDP": settings.browserReuseExistingCDP ? "true" : "false",
+            "AGENTDOCK_CODEX_HOST_ENABLED": settings.codexHostEnabled ? "true" : "false",
+            "AGENTDOCK_CODEX_EXECUTABLE_PATH": settings.codexExecutablePath,
+            "AGENTDOCK_CODEX_HOME": settings.codexHome,
+            "AGENTDOCK_COMPUTER_USE_SERVER": settings.computerUseServer,
             "AGENTDOCK_ACP_ENABLED": settings.acpEnabled ? "true" : "false",
             "AGENTDOCK_ACP_PROFILES_JSON": try ACPDesktopConfiguration.encodeProfiles(settings.acpProfiles),
             "AGENTDOCK_ACP_DEFAULT_PROFILE": settings.acpDefaultProfile,

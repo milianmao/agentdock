@@ -587,3 +587,9 @@
 "Tray Start" = "Start AgentDock";
 "Tray Restart" = "Restart AgentDock";
 "Tray Check for updates" = "Check for updates";
+"Computer use" = "Computer use";
+"Codex executable path (optional)" = "Codex executable path (optional)";
+"CODEX_HOME (optional)" = "CODEX_HOME (optional)";
+"Codex discovered from PATH" = "Codex discovered from PATH";
+"Codex executable path must point to an existing file." = "Codex executable path must point to an existing file.";
+"%@ must be an absolute path." = "%@ must be an absolute path.";

@@ -735,6 +735,10 @@ public sealed class RuntimeService : IDisposable
             $"--browser-enabled={settings.BrowserEnabled.ToString().ToLowerInvariant()}",
             "--browser-cdp-url", settings.BrowserCdpUrl ?? "",
             $"--browser-reuse-existing-cdp={settings.BrowserReuseExistingCdp.ToString().ToLowerInvariant()}",
+            $"--codex-host-enabled={settings.CodexHostEnabled.ToString().ToLowerInvariant()}",
+            "--codex-executable-path", settings.CodexExecutablePath ?? "",
+            "--codex-home", settings.CodexHome ?? "",
+            "--computer-use-server", settings.ComputerUseServer ?? "",
             $"--acp-enabled={settings.AcpEnabled.ToString().ToLowerInvariant()}",
             "--acp-profiles-json", JsonSerializer.Serialize(settings.AcpProfiles ?? []),
             "--acp-default-profile", settings.AcpDefaultProfile ?? ""

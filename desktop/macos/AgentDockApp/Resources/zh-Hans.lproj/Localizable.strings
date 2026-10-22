@@ -587,3 +587,9 @@
 "Tray Start" = "启动 AgentDock";
 "Tray Restart" = "重启 AgentDock";
 "Tray Check for updates" = "检查更新";
+"Computer use" = "桌面操作";
+"Codex executable path (optional)" = "Codex 可执行文件路径（可选）";
+"CODEX_HOME (optional)" = "CODEX_HOME（可选）";
+"Codex discovered from PATH" = "从 PATH 自动发现 Codex";
+"Codex executable path must point to an existing file." = "Codex 可执行文件路径必须指向已存在的文件。";
+"%@ must be an absolute path." = "%@ 必须是绝对路径。";

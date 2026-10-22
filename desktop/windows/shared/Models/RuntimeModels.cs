@@ -104,6 +104,18 @@ public sealed class ControlPanelSettings
     [JsonPropertyName("browser_reuse_existing_cdp")]
     public bool BrowserReuseExistingCdp { get; set; }
 
+    [JsonPropertyName("codex_host_enabled")]
+    public bool CodexHostEnabled { get; set; }
+
+    [JsonPropertyName("codex_executable_path")]
+    public string CodexExecutablePath { get; set; } = "";
+
+    [JsonPropertyName("codex_home")]
+    public string CodexHome { get; set; } = "";
+
+    [JsonPropertyName("computer_use_server")]
+    public string ComputerUseServer { get; set; } = "";
+
     [JsonPropertyName("acp_enabled")]
     public bool AcpEnabled { get; set; }
 
